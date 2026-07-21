@@ -1,11 +1,22 @@
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import {
+  ContactMessage,
+  contactMessages,
+  GalleryPhoto,
+  galleryPhotos,
+  InsertContactMessage,
+  InsertGalleryPhoto,
+  InsertReview,
+  InsertUser,
+  Review,
+  reviews,
+  users,
+} from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
-// Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
@@ -89,4 +100,96 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// ===== Gallery Photos =====
+
+export async function getGalleryPhotos(): Promise<GalleryPhoto[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const result = await db.select().from(galleryPhotos).orderBy(desc(galleryPhotos.sortOrder), desc(galleryPhotos.createdAt));
+  return result;
+}
+
+export async function createGalleryPhoto(data: InsertGalleryPhoto): Promise<GalleryPhoto> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(galleryPhotos).values(data);
+  const [row] = await db.select().from(galleryPhotos).where(eq(galleryPhotos.id, result[0].insertId)).limit(1);
+  return row;
+}
+
+export async function deleteGalleryPhoto(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(galleryPhotos).where(eq(galleryPhotos.id, id));
+}
+
+export async function updateGalleryPhoto(id: number, data: Partial<InsertGalleryPhoto>): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(galleryPhotos).set(data).where(eq(galleryPhotos.id, id));
+}
+
+// ===== Reviews =====
+
+export async function getApprovedReviews(): Promise<Review[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const result = await db.select().from(reviews).where(eq(reviews.approved, "approved")).orderBy(desc(reviews.createdAt));
+  return result;
+}
+
+export async function getAllReviews(): Promise<Review[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const result = await db.select().from(reviews).orderBy(desc(reviews.createdAt));
+  return result;
+}
+
+export async function createReview(data: InsertReview): Promise<Review> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(reviews).values(data);
+  const [row] = await db.select().from(reviews).where(eq(reviews.id, result[0].insertId)).limit(1);
+  return row;
+}
+
+export async function updateReviewStatus(id: number, approved: "pending" | "approved" | "rejected"): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(reviews).set({ approved }).where(eq(reviews.id, id));
+}
+
+export async function deleteReview(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(reviews).where(eq(reviews.id, id));
+}
+
+// ===== Contact Messages =====
+
+export async function createContactMessage(data: InsertContactMessage): Promise<ContactMessage> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(contactMessages).values(data);
+  const [row] = await db.select().from(contactMessages).where(eq(contactMessages.id, result[0].insertId)).limit(1);
+  return row;
+}
+
+export async function getAllContactMessages(): Promise<ContactMessage[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const result = await db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt));
+  return result;
+}
+
+export async function markContactMessageRead(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(contactMessages).set({ read: "read" }).where(eq(contactMessages.id, id));
+}
+
+export async function deleteContactMessage(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(contactMessages).where(eq(contactMessages.id, id));
+}

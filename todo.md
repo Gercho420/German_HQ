@@ -1,0 +1,31 @@
+# Project TODO
+
+- [x] Inicializar proyecto web fullstack
+- [x] Definir esquema de base de datos (gallery_photos, reviews, contact_messages)
+- [x] Aplicar migraciones de base de datos
+- [x] Implementar helpers de base de datos
+- [x] Implementar routers tRPC (gallery, reviews, contact)
+- [x] Integrar notificaciones automáticas al owner (reseñas y contacto)
+- [x] Integrar almacenamiento S3 para fotos de galería
+- [x] Crear sistema de i18n con 3 idiomas (ES, EN, PT)
+- [x] Crear traducciones completas para los 3 idiomas
+- [x] Diseñar tema visual pastel onírico (lavanda, rosa, menta)
+- [x] Configurar tipografía serif (Cormorant Garamond) + sans-serif (Jost)
+- [x] Crear navbar con selector de idioma y navegación
+- [x] Crear footer
+- [x] Crear componente StarRating reutilizable
+- [x] Crear sección Hero con CTA
+- [x] Crear sección About (sobre el instructor)
+- [x] Crear sección Services (6 tipos de clases con precios)
+- [x] Crear sección Gallery con lightbox
+- [x] Crear sección Reviews con formulario de reseñas
+- [x] Crear sección Contact con formulario y datos de contacto
+- [x] Crear panel de administración protegido (/admin)
+- [x] Implementar gestión de fotos en panel admin (subir, eliminar)
+- [x] Implementar moderación de reseñas en panel admin (aprobar, rechazar, eliminar)
+- [x] Implementar gestión de mensajes en panel admin (marcar leído, eliminar)
+- [x] Generar imágenes de ski para galería inicial (8 fotos + hero)
+- [x] Insertar fotos y reseñas de ejemplo en la base de datos
+- [x] Escribir tests de vitest (15 tests, todos pasan)
+- [x] Verificar funcionamiento completo (TypeScript sin errores, tests OK)
+- [ ] Guardar checkpoint y entregar al usuario
