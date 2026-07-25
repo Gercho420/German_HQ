@@ -33,6 +33,7 @@ export const translations: Record<Lang, TranslationDict> = {
     "hero.subtitle": "Clases personalizadas para todos los niveles, desde principiantes hasta esquiadores avanzados. Vive la montaña como nunca antes.",
     "hero.cta": "Reserva tu clase",
     "hero.ctaSecondary": "Ver servicios",
+    "hero.whatsappMessage": "¡Hola! Quiero reservar una clase de ski.",
 
     // About
     "about.title": "Sobre mí",
@@ -174,6 +175,7 @@ export const translations: Record<Lang, TranslationDict> = {
     "hero.subtitle": "Personalized lessons for all levels, from beginners to advanced skiers. Experience the mountain like never before.",
     "hero.cta": "Book your lesson",
     "hero.ctaSecondary": "View services",
+    "hero.whatsappMessage": "Hi! I'd like to book a ski lesson.",
 
     // About
     "about.title": "About Me",
@@ -315,6 +317,7 @@ export const translations: Record<Lang, TranslationDict> = {
     "hero.subtitle": "Aulas personalizadas para todos os níveis, de iniciantes a esquiadores avançados. Vivencie a montanha como nunca antes.",
     "hero.cta": "Reserve sua aula",
     "hero.ctaSecondary": "Ver serviços",
+    "hero.whatsappMessage": "Olá! Quero reservar uma aula de ski.",
 
     // About
     "about.title": "Sobre mim",
