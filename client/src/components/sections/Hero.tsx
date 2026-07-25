@@ -7,6 +7,7 @@ import { useMemo } from "react";
 export default function Hero() {
   const { t, lang } = useI18n();
   const { data: textsConfig } = trpc.config.getByCategory.useQuery({ category: `texts_${lang}` });
+  const { data: contactConfig } = trpc.config.getByCategory.useQuery({ category: "contact" });
 
   const heroTexts = useMemo(() => {
     if (!textsConfig) return {
@@ -22,6 +23,15 @@ export default function Hero() {
       subtitle: map.hero_subtitle || t("hero.subtitle"),
     };
   }, [textsConfig, t, lang]);
+
+  const whatsappHref = useMemo(() => {
+    const map: Record<string, string> = {};
+    (contactConfig || []).forEach(c => { map[c.configKey] = c.configValue; });
+    const rawNumber = map.whatsapp || "+34 600 000 000";
+    const waNumber = rawNumber.replace(/[^0-9]/g, "");
+    const prefilledMessage = t("hero.whatsappMessage");
+    return `https://wa.me/${waNumber}?text=${encodeURIComponent(prefilledMessage)}`;
+  }, [contactConfig, t]);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
@@ -62,7 +72,7 @@ export default function Hero() {
             asChild
             className="rounded-full bg-[oklch(0.55_0.08_295)] hover:bg-[oklch(0.50_0.09_295)] text-[oklch(0.98_0.01_300)] font-sans text-sm tracking-wider px-8 py-3 transition-all duration-200 active:scale-95 shadow-lg shadow-[oklch(0.55_0.08_295/0.2)]"
           >
-            <a href="/#contact">{t("hero.cta")}</a>
+            <a href={whatsappHref} target="_blank" rel="noopener noreferrer">{t("hero.cta")}</a>
           </Button>
           <Button
             asChild
