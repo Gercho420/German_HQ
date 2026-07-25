@@ -8,14 +8,25 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Menu, X, Globe, ChevronDown } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLocation } from "wouter";
+import { trpc } from "@/lib/trpc";
 
 export default function Navbar() {
   const { t, lang, setLang } = useI18n();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [location] = useLocation();
+  const { data: contactConfig } = trpc.config.getByCategory.useQuery({ category: "contact" });
+
+  const whatsappHref = useMemo(() => {
+    const map: Record<string, string> = {};
+    (contactConfig || []).forEach(c => { map[c.configKey] = c.configValue; });
+    const rawNumber = map.whatsapp || "+34 600 000 000";
+    const waNumber = rawNumber.replace(/[^0-9]/g, "");
+    const prefilledMessage = t("hero.whatsappMessage");
+    return `https://wa.me/${waNumber}?text=${encodeURIComponent(prefilledMessage)}`;
+  }, [contactConfig, t]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -96,7 +107,7 @@ export default function Navbar() {
             variant="default"
             className="hidden md:inline-flex rounded-full bg-[oklch(0.55_0.08_295)] hover:bg-[oklch(0.50_0.09_295)] text-[oklch(0.98_0.01_300)] font-sans text-sm tracking-wider px-6 py-2 transition-all duration-200 active:scale-95"
           >
-            <a href="/#contact">{t("nav.bookNow")}</a>
+            <a href={whatsappHref} target="_blank" rel="noopener noreferrer">{t("nav.bookNow")}</a>
           </Button>
 
           {/* Mobile menu toggle */}
@@ -126,7 +137,7 @@ export default function Navbar() {
               asChild
               className="rounded-full bg-[oklch(0.55_0.08_295)] hover:bg-[oklch(0.50_0.09_295)] text-[oklch(0.98_0.01_300)] font-sans text-sm tracking-wider w-full"
             >
-              <a href="/#contact">{t("nav.bookNow")}</a>
+              <a href={whatsappHref} target="_blank" rel="noopener noreferrer">{t("nav.bookNow")}</a>
             </Button>
           </div>
         </div>
