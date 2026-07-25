@@ -215,3 +215,43 @@ describe("contact", () => {
     expect(result).toEqual([]);
   });
 });
+describe("config", () => {
+  it("getByCategory is public", async () => {
+    const mockConfig = [
+      { id: 1, category: "pricing_es", configKey: "beginner_title", configValue: "Beginner", createdAt: new Date(), updatedAt: new Date() },
+    ];
+    vi.mocked(db.getConfigByCategory).mockResolvedValue(mockConfig);
+
+    const caller = appRouter.createCaller(createPublicContext());
+    const result = await caller.config.getByCategory({ category: "pricing_es" });
+
+    expect(result).toEqual(mockConfig);
+    expect(db.getConfigByCategory).toHaveBeenCalledOnce();
+  });
+
+  it("save requires admin role", async () => {
+    const caller = appRouter.createCaller(createUserContext());
+    await expect(
+      caller.config.save({ category: "pricing_es", items: [{ configKey: "test", configValue: "val" }] })
+    ).rejects.toThrow();
+  });
+
+  it("save succeeds for admin", async () => {
+    vi.mocked(db.upsertConfigs).mockResolvedValue(undefined);
+    const caller = appRouter.createCaller(createAdminContext());
+    const result = await caller.config.save({
+      category: "pricing_es",
+      items: [{ configKey: "beginner_title", configValue: "Clase para principiantes" }],
+    });
+
+    expect(result).toEqual({ success: true });
+    expect(db.upsertConfigs).toHaveBeenCalledOnce();
+  });
+
+  it("save validates admin for contact category", async () => {
+    const caller = appRouter.createCaller(createUserContext());
+    await expect(
+      caller.config.save({ category: "contact", items: [{ configKey: "whatsapp", configValue: "+34 600 000 000" }] })
+    ).rejects.toThrow();
+  });
+});

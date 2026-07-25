@@ -1,7 +1,16 @@
 import { useI18n } from "@/i18n/I18nContext";
+import { trpc } from "@/lib/trpc";
+import { useMemo } from "react";
 
 export default function About() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const { data: textsConfig } = trpc.config.getByCategory.useQuery({ category: `texts_${lang}` });
+
+  const aboutText = useMemo(() => {
+    if (!textsConfig) return t("about.text");
+    const entry = textsConfig.find(c => c.configKey === "about_text");
+    return entry?.configValue || t("about.text");
+  }, [textsConfig, t, lang]);
 
   return (
     <section className="relative py-24 px-4">
@@ -17,7 +26,7 @@ export default function About() {
           {/* Content */}
           <div className="corner-bracket p-6 md:p-8">
             <p className="font-serif text-2xl md:text-3xl font-light leading-relaxed text-[oklch(0.35_0.05_295)] tracking-wide">
-              {t("about.text")}
+              {aboutText}
             </p>
           </div>
         </div>

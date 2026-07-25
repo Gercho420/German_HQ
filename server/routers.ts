@@ -10,13 +10,16 @@ import {
   deleteContactMessage,
   deleteGalleryPhoto,
   deleteReview,
+  getAllConfig,
   getAllContactMessages,
   getAllReviews,
   getApprovedReviews,
+  getConfigByCategory,
   getGalleryPhotos,
   markContactMessageRead,
   updateGalleryPhoto,
   updateReviewStatus,
+  upsertConfigs,
 } from "./db";
 import { storagePut } from "./storage";
 import { z } from "zod";
@@ -132,6 +135,37 @@ export const appRouter = router({
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
         await deleteReview(input.id);
+        return { success: true };
+      }),
+  }),
+
+  // ===== Site Config =====
+  config: router({
+    getAll: publicProcedure.query(async () => {
+      return await getAllConfig();
+    }),
+
+    getByCategory: publicProcedure
+      .input(z.object({ category: z.string().max(64) }))
+      .query(async ({ input }) => {
+        return await getConfigByCategory(input.category);
+      }),
+
+    save: adminProcedure
+      .input(z.object({
+        category: z.string().max(64),
+        items: z.array(z.object({
+          configKey: z.string().max(128),
+          configValue: z.string(),
+        })),
+      }))
+      .mutation(async ({ input }) => {
+        const items = input.items.map(item => ({
+          category: input.category,
+          configKey: item.configKey,
+          configValue: item.configValue,
+        }));
+        await upsertConfigs(items);
         return { success: true };
       }),
   }),

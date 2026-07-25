@@ -1,9 +1,18 @@
 import { useI18n } from "@/i18n/I18nContext";
+import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
+import { useMemo } from "react";
 
 export default function Footer() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [location] = useLocation();
+  const { data: textsConfig } = trpc.config.getByCategory.useQuery({ category: `texts_${lang}` });
+
+  const footerTagline = useMemo(() => {
+    if (!textsConfig) return t("footer.tagline");
+    const entry = textsConfig.find(c => c.configKey === "footer_tagline");
+    return entry?.configValue || t("footer.tagline");
+  }, [textsConfig, t, lang]);
 
   if (location === "/admin") return null;
 
@@ -15,7 +24,7 @@ export default function Footer() {
             Ski<span className="italic">Pro</span>
           </span>
           <p className="text-sm font-sans font-light tracking-wide text-[oklch(0.50_0.03_295)] max-w-md">
-            {t("footer.tagline")}
+            {footerTagline}
           </p>
         </div>
 

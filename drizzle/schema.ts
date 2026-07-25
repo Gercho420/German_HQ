@@ -69,3 +69,21 @@ export const contactMessages = mysqlTable("contact_messages", {
 
 export type ContactMessage = typeof contactMessages.$inferSelect;
 export type InsertContactMessage = typeof contactMessages.$inferInsert;
+
+/**
+ * Site-wide configuration stored as key-value pairs.
+ * Used for editable content: pricing, site texts, contact info, etc.
+ */
+export const siteConfig = mysqlTable("site_config", {
+  id: int("id").autoincrement().primaryKey(),
+  /** Config category/group (e.g., "pricing", "texts", "contact") */
+  category: varchar("category", { length: 64 }).notNull(),
+  /** Unique key within the category (e.g., "beginner_price") */
+  configKey: varchar("configKey", { length: 128 }).notNull(),
+  /** The config value (string, can be JSON for complex values) */
+  configValue: text("configValue").notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SiteConfig = typeof siteConfig.$inferSelect;
+export type InsertSiteConfig = typeof siteConfig.$inferInsert;

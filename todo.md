@@ -28,4 +28,10 @@
 - [x] Insertar fotos y reseñas de ejemplo en la base de datos
 - [x] Escribir tests de vitest (15 tests, todos pasan)
 - [x] Verificar funcionamiento completo (TypeScript sin errores, tests OK)
+- [x] Guardar checkpoint y entregar al usuario
+- [x] Tabla de configuración en base de datos (site_config con tarifas, textos, contacto)
+- [x] Helpers de DB para configuración y router tRPC admin
+- [x] Sección Settings en panel admin (tarifas, textos del sitio, medios de contacto)
+- [x] Conectar frontend público a datos dinámicos de configuración
+- [x] Tests de vitest para configuración (4 tests, todos pasan)
 - [ ] Guardar checkpoint y entregar al usuario

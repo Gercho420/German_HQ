@@ -1,9 +1,27 @@
 import { useI18n } from "@/i18n/I18nContext";
+import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
+import { useMemo } from "react";
 
 export default function Hero() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const { data: textsConfig } = trpc.config.getByCategory.useQuery({ category: `texts_${lang}` });
+
+  const heroTexts = useMemo(() => {
+    if (!textsConfig) return {
+      tagline: t("hero.tagline"),
+      title: t("hero.title"),
+      subtitle: t("hero.subtitle"),
+    };
+    const map: Record<string, string> = {};
+    textsConfig.forEach(c => { map[c.configKey] = c.configValue; });
+    return {
+      tagline: map.hero_tagline || t("hero.tagline"),
+      title: map.hero_title || t("hero.title"),
+      subtitle: map.hero_subtitle || t("hero.subtitle"),
+    };
+  }, [textsConfig, t, lang]);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
@@ -27,16 +45,16 @@ export default function Hero() {
       <div className="container mx-auto max-w-4xl text-center px-4 relative z-10">
         <div className="fade-in-up" style={{ animationDelay: "0.1s" }}>
           <p className="text-sm font-sans font-light tracking-[0.3em] uppercase text-[oklch(0.50_0.04_295)] mb-6">
-            {t("hero.tagline")}
+            {heroTexts.tagline}
           </p>
         </div>
 
         <h1 className="fade-in-up font-serif text-5xl md:text-7xl lg:text-8xl font-light leading-tight text-[oklch(0.30_0.05_295)] mb-8 max-w-3xl mx-auto" style={{ animationDelay: "0.3s" }}>
-          {t("hero.title")}
+          {heroTexts.title}
         </h1>
 
         <p className="fade-in-up text-lg md:text-xl font-sans font-light tracking-wide text-[oklch(0.45_0.04_295)] max-w-2xl mx-auto mb-12 leading-relaxed" style={{ animationDelay: "0.5s" }}>
-          {t("hero.subtitle")}
+          {heroTexts.subtitle}
         </p>
 
         <div className="fade-in-up flex flex-col sm:flex-row items-center justify-center gap-4" style={{ animationDelay: "0.7s" }}>

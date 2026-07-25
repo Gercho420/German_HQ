@@ -5,16 +5,42 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Mail, MessageCircle, Instagram, MapPin } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 export default function Contact() {
   const { t, lang } = useI18n();
   const submitContact = trpc.contact.submit.useMutation();
-  const utils = trpc.useUtils();
+  const { data: contactConfig } = trpc.config.getByCategory.useQuery({ category: "contact" });
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+
+  const contactValues = useMemo(() => {
+    if (!contactConfig) return {
+      whatsapp: "+34 600 000 000",
+      email: "info@skipro.com",
+      instagram: "@skipro",
+      location: "Andorra — Pyrenees",
+    };
+    const map: Record<string, string> = {};
+    contactConfig.forEach(c => { map[c.configKey] = c.configValue; });
+    return {
+      whatsapp: map.whatsapp || "+34 600 000 000",
+      email: map.email || "info@skipro.com",
+      instagram: map.instagram || "@skipro",
+      location: map.location || "Andorra — Pyrenees",
+    };
+  }, [contactConfig]);
+
+  const waNumber = contactValues.whatsapp.replace(/[^0-9]/g, "");
+
+  const contactInfo = [
+    { icon: MessageCircle, label: t("contact.info.whatsapp"), value: contactValues.whatsapp, href: `https://wa.me/${waNumber}` },
+    { icon: Mail, label: t("contact.info.email"), value: contactValues.email, href: `mailto:${contactValues.email}` },
+    { icon: Instagram, label: t("contact.info.instagram"), value: contactValues.instagram, href: `https://instagram.com/${contactValues.instagram.replace("@", "")}` },
+    { icon: MapPin, label: t("contact.info.location"), value: contactValues.location, href: null },
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,18 +50,10 @@ export default function Contact() {
       setName("");
       setEmail("");
       setMessage("");
-      // No query to invalidate for contact submit
     } catch {
       toast.error(t("contact.form.error"));
     }
   };
-
-  const contactInfo = [
-    { icon: MessageCircle, label: t("contact.info.whatsapp"), value: "+34 600 000 000", href: "https://wa.me/34600000000" },
-    { icon: Mail, label: t("contact.info.email"), value: "info@skipro.com", href: "mailto:info@skipro.com" },
-    { icon: Instagram, label: t("contact.info.instagram"), value: "@skipro", href: "https://instagram.com/skipro" },
-    { icon: MapPin, label: t("contact.info.location"), value: "Andorra — Pyrenees", href: null },
-  ];
 
   return (
     <section id="contact" className="relative py-24 px-4 scroll-mt-20">

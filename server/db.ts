@@ -8,9 +8,12 @@ import {
   InsertContactMessage,
   InsertGalleryPhoto,
   InsertReview,
+  InsertSiteConfig,
   InsertUser,
   Review,
   reviews,
+  siteConfig,
+  SiteConfig,
   users,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -192,4 +195,51 @@ export async function deleteContactMessage(id: number): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(contactMessages).where(eq(contactMessages.id, id));
+}
+
+// ===== Site Config =====
+
+export async function getConfigByCategory(category: string): Promise<SiteConfig[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const result = await db.select().from(siteConfig).where(eq(siteConfig.category, category));
+  return result;
+}
+
+export async function getAllConfig(): Promise<SiteConfig[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const result = await db.select().from(siteConfig).orderBy(siteConfig.category);
+  return result;
+}
+
+export async function getConfigValue(category: string, configKey: string): Promise<string | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(siteConfig).where(
+    eq(siteConfig.category, category) && eq(siteConfig.configKey, configKey)
+  ).limit(1);
+  return result.length > 0 ? result[0].configValue : null;
+}
+
+export async function upsertConfig(category: string, configKey: string, configValue: string): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const values: InsertSiteConfig = { category, configKey, configValue };
+  const updateSet: Record<string, unknown> = { configValue };
+  await db.insert(siteConfig).values(values).onDuplicateKeyUpdate({
+    set: updateSet,
+  });
+}
+
+export async function upsertConfigs(items: { category: string; configKey: string; configValue: string }[]): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  for (const item of items) {
+    const values: InsertSiteConfig = { category: item.category, configKey: item.configKey, configValue: item.configValue };
+    const updateSet: Record<string, unknown> = { configValue: item.configValue };
+    await db.insert(siteConfig).values(values).onDuplicateKeyUpdate({
+      set: updateSet,
+    });
+  }
 }
